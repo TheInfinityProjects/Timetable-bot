@@ -1,0 +1,1 @@
+bot: python manage.py --start polling
