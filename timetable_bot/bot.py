@@ -1,7 +1,7 @@
 import logging
 import os
 
-from telegram.ext import (Updater, CommandHandler)
+from telegram.ext import (Updater, CommandHandler, RegexHandler)
 
 from .command import BotCommand
 from .database import UserDatabase
@@ -36,6 +36,9 @@ class StartBot(object):
 
         # on different commands - answer in Telegram
         dp.add_handler(CommandHandler("start", self.bc.start))
+        dp.add_handler(RegexHandler('^(Понедельник|Вторник|Среда|Четверг|Пятница|Суббота)$',
+                                    self.bc.regular_choice))
+        dp.add_handler(RegexHandler('^Скрыть$', self.bc.done))
         # dp.add_handler(CommandHandler("help", help))
         dp.add_handler(CommandHandler("set", self.bc.set_group, pass_args=True))
         dp.add_handler(CommandHandler("week", self.bc.lessons_week, pass_args=True))

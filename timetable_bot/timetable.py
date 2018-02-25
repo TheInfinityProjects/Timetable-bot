@@ -22,7 +22,7 @@ class Timetable(object):
                                                          j['lesson_room']))
             if r_json['data']['weeks'][str(week_number)]['days'][i]['lessons']:
                 lessons.insert(0, '*{}*'.format(r_json['data']['weeks'][str(week_number)]['days'][i]['day_name']))
-            days.append('\n'.join(lessons))
+                days.append('\n'.join(lessons))
         return '\n'.join(days)
 
     def lessons_per_day(self, group_name, day, week_number):
