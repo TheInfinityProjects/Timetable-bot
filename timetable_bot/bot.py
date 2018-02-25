@@ -1,7 +1,7 @@
 import logging
 import os
 
-from telegram.ext import (Updater, CommandHandler, RegexHandler)
+from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, RegexHandler)
 
 from .command import BotCommand
 from .database import UserDatabase

@@ -62,7 +62,7 @@ class BotCommand(object):
                           ['Среда', 'Четверг'],
                           ['Пятница', 'Суббота'],
                           ['Скрыть']]
-        self.markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
+        self.markup = ReplyKeyboardMarkup(reply_keyboard)
 
         self.conv_handler = ConversationHandler(
             entry_points=[CommandHandler('keyboard', self.keyboard_mode)],
