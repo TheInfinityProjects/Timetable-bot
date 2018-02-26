@@ -12,8 +12,36 @@ from .timetable import Timetable
 from .week import Week
 
 
+def group_exists(func):
+    """Decorator for bot commands.
+
+    For call the telegrams, the command without arguments will return
+    the schedule for user's group, for call the command with the argument,
+    it will check the group exists
+
+    Returns:
+        :obj:`function`: On success, decorated function `func` is returned.
+
+    """
+    @functools.wraps(func)
+    def decorator(self, bot, update, args):
+        try:
+            group_name = self.format_group(str(args[0]))
+            if not self.is_group(group_name):
+                bot.send_message(update.message.chat_id,
+                                 'Группы с таким именем не существует, '
+                                 'проверьте корректность введенного имени.',
+                                 parse_mode='Markdown')
+                return
+        except IndexError:
+            user_id = update.message.from_user['id']
+            group_name = self.user_db.get_group_name(user_id)
+        return func(self, bot, update, group_name)
+    return decorator
+
+
 def is_registered(func):
-    """Shortcut for bot commands.
+    """Decorator for bot commands.
 
     For registered users returns `func`, for other users - information message.
 
@@ -98,6 +126,46 @@ class BotCommand(object):
 
         return ConversationHandler.END
 
+    def is_group(self, group_name):
+        """Verifies the existence of such a group.
+
+        http://api.rozklad.org.ua/v2/groups/{group_name|group_id}
+        Get a group by name or by ID.
+        If "statusCode": 200 and "message": OK - group exists.
+
+        Args:
+            group_name (:obj:`str`): This object is the name of the group.
+
+        Returns:
+            :obj:`boolean`: Return True if group exists, else False.
+
+        """
+
+        try:
+            r_json = requests.get(
+                'https://api.rozklad.org.ua/v2/groups/{}'.format(group_name)).json()
+            message_text = r_json['message']
+            if message_text == 'Ok':
+                return True
+            elif message_text == 'Group not found':
+                return False
+            else:
+                self.logger.error(message_text)
+        except ConnectionError as error_text:
+            self.logger.error(error_text)
+        except IndexError as error_text:
+            self.logger.error(error_text)
+
+    @staticmethod
+    def format_group(group):
+        if '-' in group:
+            group = group
+        else:
+            list_ = list(group)
+            list_.insert(2, '-')
+            group = ''.join(list_)
+        return group
+
     @staticmethod
     def start(bot, update):
         """Beginning of communication between the bot and the user.
@@ -156,26 +224,16 @@ class BotCommand(object):
                              parse_mode='Markdown')
 
     @is_registered
-    def lessons_week(self, bot, update, args):
-        try:
-            group_name = self.format_group(str(args[0]))
-        except IndexError:
-            user_id = update.message.from_user['id']
-            group_name = self.user_db.get_group_name(user_id)
-
+    @group_exists
+    def lessons_week(self, bot, update, group_name):
         week_number = self.week()
         bot.send_message(update.message.chat_id,
                          text='`{}`\n'.format(group_name) + self.timetable.lessons_week(group_name, week_number),
                          parse_mode='Markdown')
 
     @is_registered
-    def lessons_next_week(self, bot, update, args):
-        try:
-            group_name = self.format_group(str(args[0]))
-        except IndexError:
-            user_id = update.message.from_user['id']
-            group_name = self.user_db.get_group_name(user_id)
-
+    @group_exists
+    def lessons_next_week(self, bot, update, group_name):
         week_number = self.week()
         week_number.next()
 
@@ -184,13 +242,8 @@ class BotCommand(object):
                          parse_mode='Markdown')
 
     @is_registered
-    def full_weeks(self, bot, update, args):
-        try:
-            group_name = self.format_group(str(args[0]))
-        except IndexError:
-            user_id = update.message.from_user['id']
-            group_name = self.user_db.get_group_name(user_id)
-
+    @group_exists
+    def full_weeks(self, bot, update, group_name):
         week_number = self.week()
         bot.send_message(update.message.chat_id,
                          text='`{}`\n'.format(group_name) + self.timetable.lessons_week(group_name, week_number),
@@ -201,14 +254,8 @@ class BotCommand(object):
                          parse_mode='Markdown')
 
     @is_registered
-    def lessons_today(self, bot, update, args):
-        try:
-            group_name = self.format_group(str(args[0]))
-
-        except IndexError:
-            user_id = update.message.from_user['id']
-            group_name = self.user_db.get_group_name(user_id)
-
+    @group_exists
+    def lessons_today(self, bot, update, group_name):
         week_number = self.week()
         day_number = pendulum.now('Europe/Kiev')
 
@@ -220,14 +267,8 @@ class BotCommand(object):
                          parse_mode='Markdown')
 
     @is_registered
-    def lessons_tomorrow(self, bot, update, args):
-        try:
-            group_name = self.format_group(str(args[0]))
-
-        except IndexError:
-            user_id = update.message.from_user['id']
-            group_name = self.user_db.get_group_name(user_id)
-
+    @group_exists
+    def lessons_tomorrow(self, bot, update, group_name):
         week_number = self.week()
         day_number = pendulum.now('Europe/Kiev').add(days=1)
 
@@ -252,36 +293,6 @@ class BotCommand(object):
                          parse_mode='Markdown',
                          reply_markup=self.markup)
 
-    def is_group(self, group_name):
-        """Verifies the existence of such a group.
-
-        http://api.rozklad.org.ua/v2/groups/{group_name|group_id}
-        Get a group by name or by ID.
-        If "statusCode": 200 and "message": OK - group exists.
-
-        Args:
-            group_name (:obj:`str`): This object is the name of the group.
-
-        Returns:
-            :obj:`boolean`: Return True if group exists, else False.
-
-        """
-
-        try:
-            r_json = requests.get(
-                'https://api.rozklad.org.ua/v2/groups/{}'.format(group_name)).json()
-            message_text = r_json['message']
-            if message_text == 'Ok':
-                return True
-            elif message_text == 'Group not found':
-                return False
-            else:
-                self.logger.error(message_text)
-        except ConnectionError as error_text:
-            self.logger.error(error_text)
-        except IndexError as error_text:
-            self.logger.error(error_text)
-
     @is_registered
     def call_schedule(self, bot, update):
         """Send the timetable in `Markdown`.
@@ -303,13 +314,3 @@ class BotCommand(object):
         bot.send_message(update.message.chat_id,
                          text='Сейчас *{}* учебная неделя.'.format(self.week()),
                          parse_mode='Markdown')
-
-    @staticmethod
-    def format_group(group):
-        if '-' in group:
-            group = group
-        else:
-            list_ = list(group)
-            list_.insert(2, '-')
-            group = ''.join(list_)
-        return group
