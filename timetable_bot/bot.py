@@ -39,7 +39,7 @@ class StartBot(object):
         dp.add_handler(RegexHandler('^(Понедельник|Вторник|Среда|Четверг|Пятница|Суббота)$',
                                     self.bc.regular_choice))
         dp.add_handler(RegexHandler('^Скрыть$', self.bc.done))
-        # dp.add_handler(CommandHandler("help", help))
+        dp.add_handler(CommandHandler("help", self.bc.help_message))
         dp.add_handler(CommandHandler("set", self.bc.set_group, pass_args=True))
         dp.add_handler(CommandHandler("week", self.bc.lessons_week, pass_args=True))
         dp.add_handler(CommandHandler("nextweek", self.bc.lessons_next_week, pass_args=True))

@@ -110,7 +110,14 @@ class BotCommand(object):
 
         bot.send_message(update.message.chat_id,
                          text='*Привет!* Используй /set <группа>, чтобы установить расписание, '
-                              'например \'/set io61\'.', parse_mode='Markdown')
+                              'например \'/set io-61\'.', parse_mode='Markdown')
+
+    @staticmethod
+    def help_message(bot, update):
+        with open('./timetable_bot/static/help_message') as file:
+            text = file.read()
+        bot.send_message(update.message.chat_id,
+                         text=text, parse_mode='Markdown')
 
     def set_group(self, bot, update, args):
         """Add a new user to the database.
