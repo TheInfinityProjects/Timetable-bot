@@ -10,6 +10,7 @@ from telegram.ext import (CommandHandler, RegexHandler, ConversationHandler)
 from .database import UserDatabase
 from .timetable import Timetable
 from .week import Week
+from .parsing import exams_
 
 
 def group_exists(func):
@@ -292,6 +293,13 @@ class BotCommand(object):
                                                                                week_number)),
                          parse_mode='Markdown',
                          reply_markup=self.markup)
+
+    @is_registered
+    @group_exists
+    def exams(self, bot, update, group_name):
+        bot.send_message(update.message.chat_id,
+                         text='`{}`\n{}'.format(group_name, exams_(group_name)),
+                         parse_mode='Markdown')
 
     @is_registered
     def call_schedule(self, bot, update):

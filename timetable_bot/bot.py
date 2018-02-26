@@ -48,6 +48,7 @@ class StartBot(object):
         dp.add_handler(CommandHandler("tomorrow", self.bc.lessons_tomorrow, pass_args=True))
         dp.add_handler(CommandHandler(["timetable", "tt"], self.bc.call_schedule))
         dp.add_handler(CommandHandler("weeknumber", self.bc.week_number))
+        dp.add_handler(CommandHandler("exams", self.bc.exams, pass_args=True))
 
         def error(bot, update, error_):
             """Log Errors caused by Updates."""
