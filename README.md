@@ -15,7 +15,7 @@ $ pip install --upgrade virtualenv
 
 Cloning repo:
 ```commandline
-$ git clone git@github.com:TheInfinityProjects/Timetable-bot.git
+$ git clone https://github.com/TheInfinityProjects/Timetable-bot.git
 $ cd Timetable-bot
 ```
 

@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 
 
 def exams_(group_name):
+    """"""
     r_json = requests.get(
         'https://api.rozklad.org.ua/v2/groups/{}'.format(group_name)).json()
     group_url = r_json['data']['group_url'].rsplit('g=', 1)
