@@ -39,7 +39,7 @@ $ source venv/bin/activate
 
 Now install required python packages:
 ```commandline
-(venv) $ pip install -r UkrExpCompany/requirements.txt
+(venv) $ pip install -r requirements.txt
 ```
 
 Start bot polling:
