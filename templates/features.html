@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <header class="masthead mb-auto">
+    <div class="inner">
+      <h3 class="masthead-brand">ScheduleBot</h3>
+      <nav class="nav nav-masthead justify-content-center">
+        <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+        <a class="nav-link active" href="{{ url_for('features') }}">Features</a>
+        <a class="nav-link" href="{{ url_for('contact') }}">Contact</a>
+      </nav>
+    </div>
+  </header>
+  <main role="main" class="inner cover">
+    <h1 class="cover-heading">KPI ScheduleBot</h1>
+    <p class="lead">Comming soon.</p>
+    <p class="lead">
+      <a href="http://t.me/timetable_kpi_bot" class="btn btn-lg btn-secondary">Join</a>
+    </p>
+  </main>
+{% endblock %}
